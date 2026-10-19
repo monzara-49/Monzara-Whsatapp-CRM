@@ -36,7 +36,22 @@ export async function ensureMediaHeaderHandle(
 
   const spec = MEDIA_HEADER_SPECS[kind]
 
-  const appId = process.env.META_APP_ID
+  let appId = process.env.META_APP_ID
+  if (!appId) {
+    try {
+      const appRes = await fetch('https://graph.facebook.com/v21.0/app?fields=id', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(5000),
+      })
+      if (appRes.ok) {
+        const appData = (await appRes.json()) as { id?: string }
+        if (appData?.id) appId = String(appData.id)
+      }
+    } catch {
+      // ignore network errors and fallback to check below
+    }
+  }
+
   if (!appId) {
     throw new Error(t('metaAppIdRequired'))
   }

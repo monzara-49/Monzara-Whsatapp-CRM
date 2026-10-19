@@ -147,6 +147,24 @@ export async function GET() {
     )
   }
 
+  // If Meta confirms the phone is healthy and WABA is subscribed to this app,
+  // but registered_at was null (e.g. registered directly via Meta Console without PIN entry in CRM),
+  // automatically mark it registered locally so the user is not stuck.
+  if (checks.phone_metadata_ok && (checks.waba_subscribed_to_app ?? false) && !checks.locally_marked_registered) {
+    const now = new Date().toISOString()
+    await supabase
+      .from('whatsapp_config')
+      .update({
+        registered_at: now,
+        status: 'connected',
+        last_registration_error: null,
+      })
+      .eq('account_id', accountId)
+
+    checks.locally_marked_registered = true
+    config.registered_at = now
+  }
+
   const live =
     checks.phone_metadata_ok &&
     (checks.waba_subscribed_to_app ?? false) &&
@@ -161,3 +179,4 @@ export async function GET() {
     subscribed_apps_at: config.subscribed_apps_at ?? null,
   })
 }
+
