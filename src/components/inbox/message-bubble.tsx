@@ -114,7 +114,7 @@ function TemplateHeader({
   }
   const media = { ...message, media_url: header.url };
   return (
-    <div className="mt-1">
+    <div className="mt-1 min-w-0 max-w-full">
       {header.type === "image" ? (
         <MediaImageBubble message={media} t={t} />
       ) : header.type === "video" ? (
@@ -381,13 +381,13 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        "flex flex-col",
+        "flex min-w-0 max-w-full flex-col",
         isAgent ? "items-end" : "items-start",
       )}
     >
       <div
         className={cn(
-          "relative rounded-2xl px-3 py-2",
+          "relative min-w-0 max-w-full rounded-2xl px-3 py-2",
           isAgent
             ? "rounded-br-md bg-primary text-primary-foreground"
             : "rounded-bl-md bg-muted text-foreground",
